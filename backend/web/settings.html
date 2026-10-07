@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>项目设定</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, sans-serif; background: #f5f5f5; padding: 16px; max-width: 600px; margin: 0 auto; }
+h1 { font-size: 18px; margin: 16px 0; }
+.card { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+label { display: block; font-size: 14px; color: #666; margin: 8px 0 4px; }
+input, textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-size: 15px; }
+textarea { min-height: 80px; resize: vertical; }
+button { width: 100%; padding: 12px; border-radius: 8px; border: none; font-size: 16px; cursor: pointer; margin-top: 12px; }
+.btn-primary { background: #2563eb; color: #fff; }
+.btn-ai { background: #8b5cf6; color: #fff; }
+a { color: #2563eb; text-decoration: none; font-size: 14px; }
+.tip { font-size: 12px; color: #999; margin-top: 4px; }
+</style>
+</head>
+<body>
+<h1>项目设定</h1>
+<a href="/">← 返回</a>
+
+<div class="card">
+  <h3 style="margin-bottom:8px">AI 一键生成大纲</h3>
+  <input id="topic" placeholder="一句话题材，如：都市重生回到1998年，利用先知赚钱">
+  <button class="btn-ai" onclick="genOutline()">AI 生成大纲</button>
+  <div class="tip">生成后自动填入下面所有字段，你可以修改</div>
+</div>
+
+<div class="card">
+  <label>书名</label>
+  <input id="title" placeholder="书名">
+
+  <label>主角名</label>
+  <input id="protagonist_name" placeholder="如：林凡">
+
+  <label>主角境界/身份</label>
+  <input id="protagonist_realm" placeholder="如：金丹期 / 重生者">
+
+  <label>主角性格</label>
+  <input id="protagonist_personality" placeholder="如：冷静、腹黑、有仇必报">
+
+  <label>金手指/核心爽点</label>
+  <textarea id="gold_finger" placeholder="如：重生记忆，知道未来20年所有大事"></textarea>
+
+  <label>力量体系</label>
+  <textarea id="power_system" placeholder="如：都市异能，分F/E/D/C/B/A/S级"></textarea>
+
+  <label>主要反派</label>
+  <input id="villain" placeholder="如：前世害他破产的商业对手">
+
+  <label>世界观</label>
+  <textarea id="world_setting" placeholder="如：都市重生，主角带着前世记忆回到1998年..."></textarea>
+
+  <label>总大纲</label>
+  <textarea id="outline" placeholder="如：第1卷：重生归来赚第一桶金；第2卷：建立商业帝国..."></textarea>
+
+  <label>风格</label>
+  <input id="style" value="都市重生智斗">
+
+  <button class="btn-primary" onclick="save()">保存设定</button>
+</div>
+
+<div class="card">
+  <h3 style="margin-bottom:8px">引擎开关</h3>
+  <div id="togglesBox" style="font-size:14px"></div>
+  <div class="tip" style="margin-top:8px">关掉可省 token，但质量会下降；改完立即生效下一章</div>
+</div>
+
+<script src="/modal.js"></script>
+<script>
+const params = new URLSearchParams(location.search);
+const name = params.get('name') || '';
+
+async function load() {
+  if (!name) return;
+  const r = await fetch('/api/projects/' + encodeURIComponent(name) + '/settings');
+  const s = await r.json();
+  document.getElementById('title').value = s.title || '';
+  document.getElementById('protagonist_name').value = s.protagonist_name || '';
+  document.getElementById('protagonist_realm').value = s.protagonist_realm || '';
+  document.getElementById('protagonist_personality').value = s.protagonist_personality || '';
+  document.getElementById('gold_finger').value = s.gold_finger || '';
+  document.getElementById('power_system').value = s.power_system || '';
+  document.getElementById('villain').value = s.villain || '';
+  document.getElementById('world_setting').value = s.world_setting || '';
+  document.getElementById('outline').value = s.outline || '';
+  document.getElementById('style').value = s.style || '都市重生智斗';
+}
+
+async function genOutline() {
+  const topic = document.getElementById('topic').value.trim();
+  if (!topic) { await myAlert('请先输入题材', '提示'); return; }
+  const btn = document.querySelector('.btn-ai');
+  btn.textContent = 'AI 生成中...';
+  btn.disabled = true;
+  try {
+    const r = await fetch('/api/generate/outline', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({topic, style: document.getElementById('style').value, chapters: 30})
+    });
+    const data = await r.json();
+    if (data.error) { await myAlert(data.error, '错误'); return; }
+    document.getElementById('title').value = data.title || '';
+    document.getElementById('protagonist_name').value = data.protagonist_name || '';
+    document.getElementById('protagonist_realm').value = data.protagonist_realm || '';
+    document.getElementById('protagonist_personality').value = data.protagonist_personality || '';
+    document.getElementById('gold_finger').value = data.gold_finger || '';
+    document.getElementById('power_system').value = data.power_system || '';
+    document.getElementById('villain').value = data.villain || '';
+    document.getElementById('world_setting').value = data.world_setting || '';
+    document.getElementById('outline').value = data.outline || '';
+    await myAlert('大纲已生成，检查后点保存', '提示');
+  } catch(e) {
+    await myAlert('生成失败：' + e.message, '错误');
+  } finally {
+    btn.textContent = 'AI 生成大纲';
+    btn.disabled = false;
+  }
+}
+
+async function save() {
+  if (!name) { await myAlert('请从首页进入', '提示'); return; }
+  await fetch('/api/projects/' + encodeURIComponent(name) + '/settings', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      title: document.getElementById('title').value,
+      protagonist_name: document.getElementById('protagonist_name').value,
+      protagonist_realm: document.getElementById('protagonist_realm').value,
+      protagonist_personality: document.getElementById('protagonist_personality').value,
+      gold_finger: document.getElementById('gold_finger').value,
+      power_system: document.getElementById('power_system').value,
+      villain: document.getElementById('villain').value,
+      world_setting: document.getElementById('world_setting').value,
+      outline: document.getElementById('outline').value,
+      style: document.getElementById('style').value,
+    })
+  });
+  await myAlert('已保存', '提示');
+}
+
+// ===== 引擎开关 =====
+const TOGGLE_DEFS = [
+  {key: "scenes", label: "场景拆解", type: "bool", desc: "把一章拆成3-5个场景再写"},
+  {key: "roleplay", label: "角色扮演排演", type: "bool", desc: "对话场景先让角色互演再写"},
+  {key: "critics", label: "多批评者深审", type: "bool", desc: "写完后三视角挑刺"},
+  {key: "vector_rag", label: "向量语义记忆", type: "bool", desc: "语义检索旧章节（需建索引，默认关）"},
+  {key: "auto_patrol", label: "跨章矛盾巡检", type: "bool", desc: "定期回扫找前后矛盾"},
+  {key: "patrol_interval", label: "巡检间隔（章）", type: "num", desc: "每 N 章巡检一次"},
+  {key: "auto_export", label: "写完自动导出", type: "bool", desc: "全书写完自动导出TXT"},
+  {key: "state_changes", label: "人物状态记录", type: "bool", desc: "记录每章人物状态变化"},
+  {key: "inter_chapter_delay", label: "章间等待（秒）", type: "num", desc: "防限流，0=不等待"},
+];
+let toggles = {};
+
+async function loadToggles() {
+  if (!name) return;
+  try {
+    toggles = await (await fetch('/api/projects/' + encodeURIComponent(name) + '/toggles')).json();
+    renderToggles();
+  } catch(e) {}
+}
+
+function renderToggles() {
+  const box = document.getElementById('togglesBox');
+  box.innerHTML = '';
+  for (const t of TOGGLE_DEFS) {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0f0f0';
+    if (t.type === 'bool') {
+      row.innerHTML = `<div><div style="font-weight:600">${t.label}</div><div style="font-size:12px;color:#999">${t.desc}</div></div>
+        <label style="margin:0"><input type="checkbox" ${toggles[t.key] ? 'checked' : ''} data-key="${t.key}" style="width:auto"></label>`;
+      row.querySelector('input').onchange = (e) => setToggle(t.key, e.target.checked);
+    } else {
+      row.innerHTML = `<div><div style="font-weight:600">${t.label}</div><div style="font-size:12px;color:#999">${t.desc}</div></div>
+        <input type="number" value="${toggles[t.key]}" data-key="${t.key}" style="width:80px;padding:6px">`;
+      row.querySelector('input').onchange = (e) => setToggle(t.key, parseInt(e.target.value) || 0);
+    }
+    box.appendChild(row);
+  }
+}
+
+async function setToggle(key, value) {
+  if (!name) return;
+  try {
+    toggles = await (await fetch('/api/projects/' + encodeURIComponent(name) + '/toggles', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({project: name, key, value})
+    })).json();
+    renderToggles();
+  } catch(e) {}
+}
+
+load();
+loadToggles();
+</script>
+</body>
+</html>

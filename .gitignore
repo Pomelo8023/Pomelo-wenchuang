@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# 本地密钥与状态（不入库）
+api_keys.json
+provider_state.json
+.env
+
+# 运行日志
+*.log
+*.err
+
+# 数据库与状态（视情况，本地书库通常保留，但 DB 可重建）
+*.db-wal
+*.db-shm
+
+# 本地项目数据（不入库）
+projects/
+
+# 备份目录
+*_backup_*/
+_backup/
+
+# 编辑器/系统
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API Keys</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, sans-serif; background: #f5f5f5; padding: 16px; max-width: 600px; margin: 0 auto; }
+h1 { font-size: 18px; margin: 16px 0; }
+.card { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+label { display: block; font-size: 14px; color: #666; margin: 8px 0 4px; }
+input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-size: 15px; }
+button { width: 100%; padding: 12px; border-radius: 8px; border: none; font-size: 16px; cursor: pointer; margin-top: 12px; }
+.btn-primary { background: #2563eb; color: #fff; }
+a { color: #2563eb; text-decoration: none; font-size: 14px; }
+.tip { font-size: 12px; color: #999; margin-top: 4px; }
+</style>
+</head>
+<body>
+<h1>API Keys</h1>
+<a href="/">← 返回</a>
+
+<div class="card">
+  <label>智谱 ZHIPU_KEY（推荐）</label>
+  <input id="zhipu" placeholder="open.bigmodel.cn 申请">
+  <div class="tip">免费额度：glm-4-flash 完全免费，glm-4-plus 有赠送</div>
+
+  <label>硅基流动 SILICONFLOW_KEY（备用）</label>
+  <input id="siliconflow" placeholder="siliconflow.cn 申请">
+
+  <label>DeepSeek DEEPSEEK_KEY（备用）</label>
+  <input id="deepseek" placeholder="platform.deepseek.com 申请">
+
+  <button class="btn-primary" onclick="save()">保存</button>
+</div>
+
+<script src="/modal.js"></script>
+<script>
+async function load() {
+  const r = await fetch('/api/keys');
+  const keys = await r.json();
+  if (keys.ZHIPU_KEY) document.getElementById('zhipu').placeholder = '已配置（留空不修改）';
+  if (keys.SILICONFLOW_KEY) document.getElementById('siliconflow').placeholder = '已配置（留空不修改）';
+  if (keys.DEEPSEEK_KEY) document.getElementById('deepseek').placeholder = '已配置（留空不修改）';
+}
+
+async function save() {
+  const body = {};
+  const z = document.getElementById('zhipu').value.trim();
+  const s = document.getElementById('siliconflow').value.trim();
+  const d = document.getElementById('deepseek').value.trim();
+  if (z) body.ZHIPU_KEY = z;
+  if (s) body.SILICONFLOW_KEY = s;
+  if (d) body.DEEPSEEK_KEY = d;
+  await fetch('/api/keys', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(body)
+  });
+  await myAlert('已保存', '提示');
+}
+
+load();
+</script>
+</body>
+</html>

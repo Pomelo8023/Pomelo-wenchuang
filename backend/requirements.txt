@@ -1,0 +1,8 @@
+# 灵云文创 · Python 依赖
+fastapi
+uvicorn[standard]
+requests
+pyyaml
+aiosqlite
+beautifulsoup4
+ebooklib

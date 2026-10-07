@@ -1,0 +1,522 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0f0f1a">
+<title>Pomelo文创</title>
+<link rel="icon" href="/favicon.ico">
+<link rel="stylesheet" href="/style.css?v=77">
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="logo"><img src="/logo.svg" alt=""><span>Pomelo文创</span></div>
+  <div class="nav-item desktop-only" onclick="showPage('chat')"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span> AI对话</div>
+  <div class="nav-item desktop-only" onclick="showPage('projects')"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span> 我的项目</div>
+  <div class="nav-item" onclick="showPage('console')"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></span> 写作控制台</div>
+  <div class="nav-item" onclick="showPage('optimize')"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span> 优化控制台</div>
+  <div class="nav-item" onclick="showPage('characters')"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span> 人物</div>
+  <div class="nav-item" onclick="showPage('foreshadows')"><span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span> 伏笔</div>
+  <div class="nav-item" onclick="showPage('timeline')"><span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span> 时间线</div>
+  <div class="nav-item" onclick="showPage('outline')"><span class="nav-icon"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></span> 大纲</div>
+  <div class="nav-item" onclick="showPage('worldview')"><span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span> 世界观</div>
+  <div class="nav-item desktop-only" onclick="showPage('read')"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span> 书架</div>
+  <div class="nav-item" onclick="showPage('keys')"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7 7l5-5a4.95 4.95 0 0 0-7-7l-7 7a4.95 4.95 0 0 0 0 7a4.95 4.95 0 0 0 7 0l7-7"/></svg></span> 密钥</div>
+  <div style="position:absolute;bottom:16px;left:16px;right:16px;padding:12px;background:var(--card);border-radius:8px;border:1px solid var(--border)">
+    <div style="font-size:12px;color:var(--text-dim);margin-bottom:4px">当前小说</div>
+    <div style="font-size:14px;color:var(--accent);font-weight:bold" id="projectNameSidebar"></div>
+  </div>
+</div>
+
+<!-- 手机顶部品牌栏 -->
+<div class="mobile-brand">
+  <button class="menu-btn" onclick="toggleSidebar()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+  <img src="/logo.svg" alt="logo">
+  <span>Pomelo文创</span>
+</div>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="main">
+  <div class="content">
+
+    <!-- 项目列表 -->
+    <!-- AI对话 -->
+    <div class="page active" id="page-chat">
+      <div id="chatBox" style="height:calc(100vh - 200px);overflow-y:auto;padding:12px">
+        <div style="text-align:center;color:var(--text-dim);padding:40px 0">
+          <img src="/logo.svg" style="width:64px;height:64px;margin:0 auto 12px;opacity:0.6" alt=""><br>
+          <div>跟AI说你想写什么</div>
+          <div style="font-size:13px;margin-top:8px">例：帮我写本重生打铁的书，10章</div>
+        </div>
+      </div>
+      <div style="position:fixed;bottom:70px;left:0;right:0;padding:12px;background:var(--bg);z-index:150">
+        <div style="display:flex;gap:8px;max-width:600px;margin:0 auto;align-items:center">
+          <button onclick="toggleProjectDropdown()" style="background:var(--card);border:1px solid var(--border);border-radius:50%;width:44px;height:44px;padding:0;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-dim)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></button>
+          <div id="projectDropdown" style="display:none;position:fixed;bottom:130px;left:12px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:8px;max-width:200px;z-index:300;box-shadow:0 4px 20px rgba(0,0,0,0.4)"></div>
+          <input id="chatInput" style="flex:1;padding:12px;background:var(--card);border:1px solid var(--border);border-radius:24px;color:var(--text)" placeholder="输入你的想法..." onkeydown="if(event.key==='Enter')sendChat()">
+          <button class="btn btn-primary" onclick="sendChat()" style="border-radius:50%;width:44px;height:44px;padding:0;display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-projects">
+      <div class="card">
+        <div class="card-title">新建项目</div>
+        <input id="newName" placeholder="项目名（英文/数字，如 my-novel）">
+        <button class="btn btn-primary" style="margin-top:12px" onclick="createProject()">创建</button>
+      </div>
+      <div class="card">
+        <div class="card-title">我的项目</div>
+        <div id="projectList">加载中...</div>
+      </div>
+    </div>
+
+    <!-- 第二步：设定 -->
+    <div class="page" id="page-setup">
+      <div class="card">
+        <div class="card-title" id="setupTitle">项目设定</div>
+        <div style="display:flex;gap:8px;margin-bottom:16px">
+          <button class="btn btn-primary" onclick="startGen()">开始生成</button>
+          <button class="btn" onclick="showPage('projects')">返回</button>
+        </div>
+        <div class="card-title">AI 一键生成大纲</div>
+        <input id="topic" placeholder="一句话题材，如：都市重生回到1998年">
+        <button class="btn btn-ai" style="margin-top:12px" onclick="genOutline()">AI 生成大纲</button>
+        <label style="margin-top:16px;display:block">题材</label>
+        <select id="sGenre" style="width:100%;padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text)">
+        </select>
+        <div style="display:flex;gap:6px;align-items:center">
+          <label style="white-space:nowrap">总章数</label>
+          <input id="sTotalChMin" type="number" value="100" min="1" max="5000" style="width:80px">
+          <span style="color:var(--text2)">-</span>
+          <input id="sTotalChMax" type="number" value="100" min="1" max="5000" style="width:80px">
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;margin-top:6px">
+          <label style="white-space:nowrap">每章字数</label>
+          <input id="sWordsMin" type="number" value="1900" min="1000" max="5000" style="width:80px">
+          <span style="color:var(--text2)">-</span>
+          <input id="sWordsMax" type="number" value="2100" min="1000" max="5000" style="width:80px">
+        </div>
+        <label>书名</label><input id="sTitle">
+        <label>卖点标签（番茄简介开头用）</label><input id="sTags" placeholder="例：杀伐果断+面板+升级流+无敌碾压">
+        <label>简介文案（200字内，吸引读者点开）</label><textarea id="sIntro" rows="3" placeholder="例：重生到古代，别人打铁我打神兵..."></textarea>
+        <label>文风（冷峻/热血/搞笑/悬疑/轻松/硬核）</label><input id="sStyle">
+        <label>主角名</label><input id="sName">
+        <label>主角境界</label><input id="sRealm">
+        <label>主角性格</label><input id="sPersonality">
+        <label>人设标签（越极端越好）</label><input id="sTag" placeholder="例：视铁如命，谁碰他的炉子就跟谁拼命">
+        <label>短期目标（前3章）</label><input id="sShortGoal" placeholder="例：打一把好剑换三天口粮">
+        <label>情绪锚点（这本书爽在哪）</label><input id="sEmotionHook" placeholder="例：用现代技术碾压古代宗门">
+        <label>金手指</label><textarea id="sGold" rows="2"></textarea>
+        <label>力量体系</label><textarea id="sPower" rows="2"></textarea>
+        <label>主要反派</label><input id="sVillain">
+        <label>世界观</label><textarea id="sWorld" rows="3"></textarea>
+        <label>总大纲</label><textarea id="sOutline" rows="4"></textarea>
+        <label>分卷大纲（自动生成，只读）</label>
+        <div id="sVolumeOutline" style="padding:8px;background:rgba(0,0,0,0.2);border-radius:8px;font-size:12px;color:var(--text-dim);max-height:200px;overflow-y:auto">生成总大纲后自动生成</div>
+        <label>剧情大框架</label><textarea id="sPhases" rows="4"></textarea>
+        <button class="btn btn-primary" style="margin-top:16px" onclick="saveSettings()">保存设定</button>
+      </div>
+    </div>
+
+    <!-- 总览 -->
+    <div class="page" id="page-overview">
+      <div class="stats">
+        <div class="stat"><div class="num" id="ovCur">0</div><div class="label">已写章节</div></div>
+        <div class="stat"><div class="num" id="ovTotal">0</div><div class="label">总章节</div></div>
+        <div class="stat"><div class="num" id="ovStatus">-</div><div class="label">状态</div></div>
+        <div class="stat"><div class="num" id="ovFs">0</div><div class="label">未回收伏笔</div></div>
+      </div>
+      <div class="card">
+        <div class="progress"><div class="progress-bar" id="ovBar" style="width:0%"></div></div>
+        <div style="text-align:center;font-size:12px;color:var(--text-dim)" id="ovPct">0%</div>
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:12px;align-items:center">
+          <input type="number" id="startChapter" placeholder="从第N章" style="width:80px;padding:6px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px">
+          <button class="btn btn-primary" onclick="startGen()">开始/继续生成</button>
+          <button class="btn btn-danger" onclick="stopGen()">停止</button>
+          <button class="btn btn-ghost" onclick="exportTxt()">导出 TXT</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">最近章节</div>
+        <div id="recentChapters">加载中...</div>
+      </div>
+      <div class="card">
+        <div class="card-title">情绪曲线（H = 高潮章）</div>
+        <canvas id="emotionChart" width="800" height="200" style="width:100%;background:#0a0a14;border-radius:8px"></canvas>
+      </div>
+      <div class="card">
+        <div class="card-title">字数趋势</div>
+        <canvas id="wordChart" width="800" height="150" style="width:100%;background:#0a0a14;border-radius:8px"></canvas>
+      </div>
+      <div class="card">
+        <div class="card-title">人物</div>
+        <div id="ovChars">加载中...</div>
+      </div>
+      <div class="card">
+        <div class="card-title">伏笔</div>
+        <div id="ovHooks">加载中...</div>
+      </div>
+      <div class="card">
+        <div class="card-title">码字日历</div>
+        <div id="writingCalendar" style="font-size:13px">加载中...</div>
+      </div>
+    </div>
+
+    <!-- 时间线 -->
+    <div class="page" id="page-timeline">
+      <div class="card">
+        <div class="card-title">剧情时间线</div>
+        <div style="margin-bottom:8px;font-size:11px;color:#888">
+          <span style="color:#ff6b6b">●</span> 战斗 &nbsp;&nbsp;
+          <span style="color:#ffd93d">●</span> 发现 &nbsp;&nbsp;
+          <span style="color:#b5d96a">●</span> 普通（主线） &nbsp;&nbsp;
+          <span style="color:#4a9eff">●</span> 伏笔
+        </div>
+        <div style="overflow-x:auto">
+          <canvas id="timelineCanvas" width="5000" height="300" style="background:#0a0a14;border-radius:8px;cursor:pointer"></canvas>
+        </div>
+        <div id="timelineDetail" style="margin-top:16px;padding:12px;background:#0f1a0f;border-radius:8px;min-height:100px;color:var(--text-dim);font-size:13px;line-height:1.6">
+          点击时间线上的小圆球查看详情
+        </div>
+      </div>
+    </div>
+
+    <!-- 大纲 -->
+    <div class="page" id="page-outline">
+      <div class="card">
+        <div class="card-title">全书大纲</div>
+        <div id="outlineContent" style="font-size:13px;line-height:1.6">加载中...</div>
+      </div>
+    </div>
+
+    <!-- 世界观 -->
+    <div class="page" id="page-worldview">
+      <div class="card">
+        <div class="card-title">世界观设定</div>
+        <div style="display:flex;gap:8px;margin-bottom:16px">
+          <button class="btn btn-primary" onclick="genWorldMap()">生成世界地图</button>
+          <button class="btn" onclick="loadWorldview()">刷新</button>
+        </div>
+        <div id="worldMapContainer" style="margin-bottom:20px;display:none;position:relative">
+          <canvas id="worldMapCanvas" width="1600" height="800" style="width:100%;background:#0a0a14;border-radius:12px;touch-action:none"></canvas>
+          <button onclick="toggleMapFullscreen()" style="position:absolute;top:6px;right:6px;width:28px;height:28px;border-radius:50%;background:transparent;border:none;padding:0;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10;aspect-ratio:1">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/><path d="M11 8v6"/><path d="M8 11h6"/></svg>
+          </button>
+          <div id="mapZoomHint" style="display:none;position:absolute;bottom:8px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);color:var(--text);font-size:11px;padding:4px 12px;border-radius:10px">双指捏合缩放 · 单指拖拽平移</div>
+          <div id="worldMapLegend" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;font-size:11px"></div>
+        </div>
+        <!-- 地图全屏遮罩 -->
+        <div id="mapFullscreen" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.95);z-index:100;flex-direction:column">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px">
+            <div style="color:var(--text);font-size:14px;font-weight:600">世界地图</div>
+            <button onclick="toggleMapFullscreen()" style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.1);border:none;color:var(--text);cursor:pointer">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+          </div>
+          <canvas id="mapFullscreenCanvas" width="1600" height="900" style="width:100%;aspect-ratio:16/9;background:#0a0a14;touch-action:none;align-self:center"></canvas>
+        </div>
+        <div id="worldviewContent" style="font-size:13px;line-height:1.6">加载中...</div>
+      </div>
+    </div>
+
+    <!-- 控制台 -->
+    <div class="page" id="page-console">
+      <div class="card">
+        <div class="card-title">进度</div>
+        <div id="progressText" style="font-size:14px;margin-bottom:8px">未开始</div>
+        <div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden">
+          <div id="progressBar" style="height:100%;background:var(--accent);width:0%;transition:width 0.5s"></div>
+        </div>
+        <div id="wordCount" style="font-size:12px;color:var(--text2);margin-top:8px"></div>
+        <div id="speedInfo" style="font-size:12px;color:var(--text2);margin-top:4px"></div>
+        <div id="etaInfo" style="font-size:12px;color:var(--text2);margin-top:4px"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">LLM 状态</div>
+        <div id="llmStatus" style="font-size:13px"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">实时日志</div>
+        <div id="statusIcon" style="margin-bottom:8px"></div>
+        <div class="log-box" id="logBox">等待开始...</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="startGen()">开始/继续</button>
+        <button class="btn btn-danger" onclick="stopGen()">暂停</button>
+        <button class="btn" onclick="rewriteByChapter()">指定重写哪一章</button>
+      </div>
+    </div>
+
+    <!-- 阅读 -->
+    <div class="page" id="page-read">
+      <div style="display:flex;gap:16px;height:calc(100vh - 180px)">
+        <!-- 左侧目录 -->
+        <div class="card" style="width:260px;flex-shrink:0;overflow-y:auto;margin-bottom:0">
+          <div class="card-title">目录</div>
+          <div id="readList">加载中...</div>
+        </div>
+        <!-- 右侧正文 -->
+        <div class="card" id="chapterCard" style="flex:1;overflow-y:auto;margin-bottom:0;display:none">
+          <div style="position:sticky;top:0;background:var(--card);backdrop-filter:var(--glass);padding-bottom:12px;border-bottom:1px solid var(--border);margin-bottom:16px;z-index:10">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span id="chTitle" style="font-size:18px;font-weight:700"></span>
+              <div style="display:flex;gap:8px">
+                <button class="btn btn-ghost" style="padding:6px 12px;font-size:12px" onclick="exportAll()">导出整本</button>
+                <button class="btn btn-ghost" style="padding:6px 12px;font-size:12px" onclick="exportCurrentChapter()">导出本章</button>
+                <button class="btn btn-ghost" style="padding:6px 12px;font-size:12px" onclick="toggleEdit()" id="editBtn">编辑</button>
+              </div>
+            </div>
+          </div>
+          <div id="chContent" style="line-height:2;font-size:16px;white-space:pre-wrap;font-family:'Noto Serif SC','Songti SC',serif;max-width:700px;margin:0 auto;padding:0 20px 120px 20px"></div>
+          <textarea id="chEditArea" rows="20" style="display:none;margin-top:12px;font-family:inherit;font-size:14px;line-height:1.8"></textarea>
+          <div id="editActions" style="display:none;margin-top:12px;text-align:right">
+            <button class="btn btn-ghost" onclick="toggleEdit()">取消</button>
+            <button class="btn btn-primary" onclick="saveChapterEdit()">保存修改</button>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:32px;padding-top:16px;border-top:1px solid var(--border)">
+            <button class="btn btn-ghost" id="prevCh" onclick="prevChapter()">← 上一章</button>
+            <button class="btn btn-ghost" id="nextCh" onclick="nextChapter()">下一章 →</button>
+          </div>
+          <div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--border)">
+            <div class="card-title">AI 改稿</div>
+            <div id="chatBox" style="max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;margin-bottom:12px;padding:4px">
+              <div style="color:var(--text-dim);font-size:12px;text-align:center">跟 AI 说你想怎么改这一章 · Enter 发送 / Shift+Enter 换行</div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <input id="chatInput" placeholder="比如：把这段改得更爽 / 删掉废话 / 对话更自然" style="flex:1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();runChatEdit()}">
+              <button class="btn btn-primary" id="chatSendBtn" onclick="runChatEdit()">发送</button>
+              <button class="btn btn-ghost" onclick="clearChat()" title="清空对话">×</button>
+            </div>
+          </div>
+        </div>
+        <!-- 空状态 -->
+        <div class="card empty-state" id="readEmpty" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          <div>从左侧目录选一章开始读</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 人物 -->
+    <div class="page" id="page-characters">
+      <div class="card">
+        <div class="card-title">人物关系图谱</div>
+        <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+          <input id="charSearch" placeholder="搜索人物名..." style="flex:1;min-width:200px;padding:8px 12px;background:rgba(0,0,0,0.2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px" oninput="renderCharGraph()">
+          <select id="charFilter" style="padding:8px 12px;background:rgba(0,0,0,0.2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px" onchange="renderCharGraph()">
+            <option value="all">全部</option>
+            <option value="main">主角/反派</option>
+            <option value="family">家人</option>
+            <option value="warrior">武将</option>
+            <option value="sage">谋士/法师</option>
+            <option value="noble">权贵</option>
+            <option value="assassin">刺客</option>
+            <option value="merchant">商人</option>
+            <option value="healer">医生/治疗</option>
+            <option value="artisan">工匠/炼器</option>
+            <option value="creature">动物/灵兽</option>
+            <option value="plant">植物精怪</option>
+            <option value="dragon">龙族</option>
+            <option value="elemental">元素生物</option>
+            <option value="divine">神仙</option>
+            <option value="demon">鬼怪妖魔</option>
+            <option value="elf">精灵</option>
+            <option value="robot">机械/机器人</option>
+            <option value="female">女性</option>
+            <option value="mysterious">神秘/危险</option>
+            <option value="faction">势力/组织</option>
+            <option value="npc">配角</option>
+          </select>
+        </div>
+        <div id="charGraph" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px"></div>
+      </div>
+    </div>
+
+    <!-- 伏笔 -->
+    <div class="page" id="page-foreshadows">
+      <div class="card">
+        <div class="card-title">伏笔追踪</div>
+        <div id="fsList">加载中...</div>
+      </div>
+    </div>
+
+    <!-- 设定 -->
+    <div class="page" id="page-settings">
+      <div class="card">
+        <div class="card-title">项目体检</div>
+        <button class="btn" onclick="runDoctor()">一键体检</button>
+        <div id="doctorResult" style="margin-top:12px;font-size:13px"></div>
+      </div>
+
+        <div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border)">
+          <div class="card-title">对标书拆解</div>
+          <div style="color:var(--text-dim);font-size:12px;margin-bottom:8px">粘贴一段你想对标的小说开头（500-2000字），AI 拆解它的爽点节奏</div>
+          <textarea id="deconstructText" rows="5" placeholder="粘贴对标小说片段..."></textarea>
+          <button class="btn" style="margin-top:8px" onclick="runDeconstruct()">开始拆解</button>
+          <div id="deconstructResult" style="margin-top:12px;font-size:13px;white-space:pre-wrap"></div>
+        </div>
+
+        <div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border)">
+          <div class="card-title">文风学习</div>
+          <div style="color:var(--text-dim);font-size:12px;margin-bottom:8px">粘贴一段你喜欢的文字，AI 学习它的文风，后续写作全按这个风格</div>
+          <textarea id="styleText" rows="5" placeholder="粘贴喜欢的段落..."></textarea>
+          <button class="btn" style="margin-top:8px" onclick="runStyleExtract()">学习文风</button>
+          <div id="styleResult" style="margin-top:12px;font-size:13px;white-space:pre-wrap"></div>
+        </div>
+
+        <div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border)">
+          <div class="card-title">封面生成</div>
+          <div style="color:var(--text-dim);font-size:12px;margin-bottom:8px">根据书名+题材自动生成网文封面（免费）</div>
+          <input id="coverExtra" placeholder="额外描述（可选，如：主角背影、雨天）" style="margin-bottom:8px">
+          <button class="btn" onclick="runCover()">生成封面</button>
+          <div id="coverResult" style="margin-top:12px"></div>
+        </div>
+
+        <div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border)">
+          <div class="card-title">市场雷达</div>
+          <div style="color:var(--text-dim);font-size:12px;margin-bottom:8px">看看现在什么题材火</div>
+          <button class="btn" onclick="runRadar()">查看热门题材</button>
+          <div id="radarResult" style="margin-top:12px;font-size:13px"></div>
+        </div>
+
+        <div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border)">
+          <div class="card-title">导入已有小说</div>
+          <div style="color:var(--text-dim);font-size:12px;margin-bottom:8px">粘贴文本或上传EPUB/TXT文件</div>
+          <textarea id="importText" rows="5" placeholder="粘贴已有小说（自动按第X章切分）..."></textarea>
+          <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+            <button class="btn" onclick="runImport()">导入文本</button>
+            <input type="file" id="importFile" accept=".epub,.txt" style="display:none" onchange="uploadFile()">
+            <button class="btn" onclick="document.getElementById('importFile').click()">上传EPUB/TXT</button>
+          </div>
+          <div id="importResult" style="margin-top:8px;font-size:13px"></div>
+        </div>
+
+        <div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border)">
+          <div class="card-title">风格指纹提取</div>
+          <div style="color:var(--text-dim);font-size:12px;margin-bottom:8px">粘贴一段喜欢的小说，提取风格指纹</div>
+          <textarea id="styleText" rows="4" placeholder="粘贴参考文本..."></textarea>
+          <button class="btn" style="margin-top:8px" onclick="extractStyle()">提取风格</button>
+          <div id="styleResult" style="margin-top:8px;font-size:13px"></div>
+        </div>
+
+        <div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border)">
+          <div class="card-title">错别字检查</div>
+          <div style="color:var(--text-dim);font-size:12px;margin-bottom:8px">检查章节里有没有错别字</div>
+          <input id="typoCh" type="number" placeholder="章节号" style="width:100px;margin-right:8px">
+          <button class="btn" onclick="runTypoCheck()">检查</button>
+          <div id="typoResult" style="margin-top:8px;font-size:13px;white-space:pre-wrap"></div>
+        </div>
+
+        <div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border)">
+          <div class="card-title">敏感词检查</div>
+          <div style="color:var(--text-dim);font-size:12px;margin-bottom:8px">检查章节里有没有敏感词，怕被平台屏蔽</div>
+          <input id="sensitiveCh" type="number" placeholder="章节号" style="width:100px;margin-right:8px">
+          <button class="btn" onclick="runSensitiveCheck()">检查</button>
+          <div id="sensitiveResult" style="margin-top:8px;font-size:13px;white-space:pre-wrap"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 密钥 -->
+    <div class="page" id="page-keys">
+      <div class="card">
+        <div class="card-title">密钥管理</div>
+        <label>Agnes Key（主力，免费）</label><input id="kAgnes" type="password" placeholder="从 agnes-ai.com 获取">
+        <label>智谱 GLM Key（备用）</label><input id="kZhipu" type="password" placeholder="从 open.bigmodel.cn 免费获取">
+        <label>硅基流动 Key（备用）</label><input id="kSilicon" type="password" placeholder="从 siliconflow.cn 免费获取">
+        <label>DeepSeek Key（备用）</label><input id="kDeepseek" type="password" placeholder="从 platform.deepseek.com 获取">
+        <button class="btn btn-primary" style="margin-top:16px" onclick="saveKeys()">保存密钥</button>
+      </div>
+    </div>
+
+    <!-- 优化控制台页面 -->
+    <div class="page" id="page-optimize">
+      <div class="card">
+        <div class="card-title">修改日志</div>
+        <div class="log-box" id="optimizeLogBox">暂无修改记录</div>
+      </div>
+      <div class="card">
+        <div class="card-title">待处理修改建议</div>
+        <div id="feedbackBox" style="font-size:13px;color:var(--text-dim);max-height:300px;overflow-y:auto;overflow-x:hidden">暂无修改建议</div>
+      </div>
+      <div class="card">
+        <div class="card-title">AI诊断优化</div>
+        <div style="margin-bottom:16px">
+          <label style="display:block;font-size:14px;margin-bottom:8px">选择章节</label>
+          <select id="editChapterSelect" onchange="loadChapterForEdit()" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-size:14px">
+            <option value="">请选择章节</option>
+          </select>
+        </div>
+        <div style="margin-bottom:16px">
+          <label style="display:block;font-size:14px;margin-bottom:8px">AI结果</label>
+          <textarea id="aiResultText" style="width:100%;min-height:150px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-size:13px;line-height:1.6;resize:vertical" placeholder="AI诊断和优化的结果会显示在这里，你可以手动编辑"></textarea>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:16px">
+          <button onclick="aiDiagnoseChapter()" style="flex:1;background:none;border:1px solid var(--border);color:var(--text);border-radius:8px;padding:12px;cursor:pointer;font-size:14px">AI诊断</button>
+          <select id="optimizeType" style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-size:14px">
+            <option value="structure">结构修改</option>
+            <option value="style">语气风格</option>
+            <option value="polish">句子润色</option>
+          </select>
+          <button onclick="aiModifyChapter()" style="flex:1;background:none;border:1px solid var(--border);color:var(--text);border-radius:8px;padding:12px;cursor:pointer;font-size:14px">AI优化</button>
+        </div>
+        <button onclick="saveAiResultToFeedback()" style="width:100%;background:var(--accent);color:#000;border:none;border-radius:8px;padding:14px;cursor:pointer;font-size:14px;font-weight:bold">保存优化</button>
+      </div>
+      <div class="card">
+        <div class="card-title">章节修改</div>
+        <div style="margin-bottom:16px">
+          <label style="display:block;font-size:14px;margin-bottom:8px">原文</label>
+          <textarea id="originalChapterText" style="width:100%;min-height:200px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-size:13px;line-height:1.6;resize:vertical" readonly></textarea>
+        </div>
+        <div style="margin-bottom:16px">
+          <label style="display:block;font-size:14px;margin-bottom:8px">修改后（可编辑）</label>
+          <textarea id="modifiedChapterText" style="width:100%;min-height:200px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;color:var(--text);font-size:13px;line-height:1.6;resize:vertical"></textarea>
+        </div>
+        <button onclick="saveModifiedChapter()" style="width:100%;background:var(--accent);color:#000;border:none;border-radius:8px;padding:14px;cursor:pointer;font-size:14px;font-weight:bold">保存章节</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="/app.js?v=109"></script>
+<!-- 手机底部4TAB -->
+<div class="bottom-nav">
+  <div class="bottom-nav-item" onclick="showPage('chat',event)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    AI对话
+  </div>
+  <div class="bottom-nav-item" onclick="showPage('projects',event)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><circle cx="11" cy="11" r="2"/></svg>
+    写作
+  </div>
+  <div class="bottom-nav-item" onclick="showPage('read',event)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+    书架
+  </div>
+  <div class="bottom-nav-item" onclick="showPage('settings',event)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+    工具
+  </div>
+</div>
+
+<!-- 自定义弹窗 -->
+<div id="modalOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center">
+  <div style="background:#1a1a2e;border:1px solid var(--border);border-radius:16px;padding:24px;min-width:320px;max-width:90vw;box-shadow:0 8px 32px rgba(0,0,0,0.4)">
+    <div id="modalTitle" style="font-size:16px;font-weight:600;margin-bottom:12px"></div>
+    <div id="modalBody" style="font-size:13px;color:var(--text-dim);margin-bottom:16px;line-height:1.6"></div>
+    <input id="modalInput" type="text" style="display:none;width:100%;padding:8px 12px;margin-bottom:16px;background:rgba(0,0,0,0.2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;box-sizing:border-box">
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button id="modalCancel" onclick="modalCancel()" style="padding:8px 16px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text-dim);cursor:pointer;font-size:13px">取消</button>
+      <button id="modalOk" onclick="modalOk()" style="padding:8px 16px;background:var(--accent);border:none;border-radius:8px;color:white;cursor:pointer;font-size:13px">确定</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

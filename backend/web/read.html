@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1a1a2e">
+<title>章节浏览</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, sans-serif; background: #f5f5f5; padding: 16px; max-width: 600px; margin: 0 auto; transition: background 0.3s; }
+body.dark { background: #1a1a2e; color: #ccc; }
+h1 { font-size: 18px; margin: 16px 0; }
+.card { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: background 0.3s; }
+body.dark .card { background: #16213e; box-shadow: none; }
+.ch-list { max-height: 200px; overflow-y: auto; }
+.ch-item { padding: 10px 0; border-bottom: 1px solid #eee; cursor: pointer; font-size: 14px; }
+body.dark .ch-item { border-color: #0f3460; }
+.ch-item.active { color: #2563eb; font-weight: bold; }
+body.dark .ch-item.active { color: #7c9eff; }
+.content { line-height: 1.9; font-size: 17px; white-space: pre-wrap; }
+a { color: #2563eb; text-decoration: none; font-size: 14px; }
+body.dark a { color: #7c9eff; }
+.topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.toggle { padding: 8px 16px; border-radius: 8px; border: none; font-size: 14px; cursor: pointer; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+body.dark .toggle { background: #16213e; color: #ccc; }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <a href="/">← 返回</a>
+  <div style="display:flex;gap:8px">
+    <button class="toggle" onclick="exportAll()">导出整本</button>
+    <button class="toggle" onclick="exportCurrent()">导出本章</button>
+    <button class="toggle" onclick="toggleDark()"><svg style="width:14px;height:14px;vertical-align:middle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg> 夜间</button>
+  </div>
+</div>
+<h1 id="title">章节浏览</h1>
+
+<div class="card">
+  <div class="ch-list" id="list">加载中...</div>
+</div>
+
+<div class="card" id="chapterCard" style="display:none">
+  <h3 id="chTitle" style="margin-bottom:12px"></h3>
+  <div class="content" id="chContent"></div>
+</div>
+
+<script src="/modal.js"></script>
+<script>
+const params = new URLSearchParams(location.search);
+const name = params.get('name');
+document.getElementById('title').textContent = name;
+
+// 夜间模式
+const ICON_MOON = '<svg style="width:14px;height:14px;vertical-align:middle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>';
+const ICON_SUN = '<svg style="width:14px;height:14px;vertical-align:middle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
+function setToggleLabel(dark) {
+  document.querySelector('.toggle').innerHTML = (dark ? ICON_SUN + ' 日间' : ICON_MOON + ' 夜间');
+}
+if (localStorage.getItem('dark') === '1') {
+  document.body.classList.add('dark');
+  setToggleLabel(true);
+}
+function toggleDark() {
+  document.body.classList.toggle('dark');
+  const dark = document.body.classList.contains('dark');
+  localStorage.setItem('dark', dark ? '1' : '0');
+  setToggleLabel(dark);
+}
+
+async function loadList() {
+  const r = await fetch('/api/projects/' + encodeURIComponent(name) + '/chapters');
+  const data = await r.json();
+  const chs = data.chapters || data;
+  const el = document.getElementById('list');
+  if (!chs.length) { el.innerHTML = '<p style="color:#999">还没有章节</p>'; return; }
+  el.innerHTML = chs.map(c => `
+    <div class="ch-item" onclick="loadCh(${c.num || c.chapter})">
+      第${c.num || c.chapter}章 ${c.title || ''}
+      <span style="float:right;color:#999;font-size:12px">${c.word_count || 0}字</span>
+    </div>
+  `).join('');
+  const last = localStorage.getItem('last_ch_' + name);
+  if (last) loadCh(parseInt(last));
+  else loadCh((chs[chs.length - 1].num || chs[chs.length - 1].chapter));
+}
+
+async function loadCh(ch) {
+  const r = await fetch('/api/projects/' + encodeURIComponent(name) + '/chapters/' + ch);
+  const c = await r.json();
+  document.getElementById('chapterCard').style.display = 'block';
+  document.getElementById('chTitle').textContent = c.title || '第' + ch + '章';
+  document.getElementById('chContent').textContent = c.content || '（空）';
+  localStorage.setItem('last_ch_' + name, ch);
+  // 高亮当前章
+  document.querySelectorAll('.ch-item').forEach((el, i) => {
+    el.classList.toggle('active', i === ch - 1);
+  });
+}
+
+loadList();
+
+function exportAll() {
+  window.location.href = '/api/projects/' + encodeURIComponent(name) + '/export';
+}
+
+function exportCurrent() {
+  const ch = localStorage.getItem('last_ch_' + name);
+  if (!ch) { myAlert('请先选择一章', '提示'); return; }
+  window.location.href = '/api/projects/' + encodeURIComponent(name) + '/export/' + ch;
+}
+</script>
+</body>
+</html>

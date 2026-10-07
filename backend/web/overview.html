@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>总览</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, sans-serif; background: #f5f5f5; padding: 16px; max-width: 600px; margin: 0 auto; }
+h1 { font-size: 18px; margin: 12px 0; }
+.card { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin: 12px 0; }
+.stat { background: #f9f9f9; padding: 12px 8px; border-radius: 8px; text-align: center; }
+.stat .label { font-size: 11px; color: #999; }
+.stat .value { font-size: 20px; font-weight: bold; margin-top: 4px; }
+.progress { height: 8px; background: #eee; border-radius: 4px; overflow: hidden; margin: 8px 0; }
+.progress-bar { height: 100%; background: #2563eb; transition: width 0.3s; }
+a { color: #2563eb; text-decoration: none; }
+.nav { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; }
+.nav a { padding: 12px 8px; background: #fff; border-radius: 8px; text-align: center; text-decoration: none; color: #333; font-size: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+.foreshadow { padding: 8px 0; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
+.foreshadow:last-child { border: none; }
+.tag { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-right: 6px; }
+.tag.active { background: #dbeafe; color: #1e40af; }
+.tag.resolved { background: #dcfce7; color: #166534; }
+.tag.overdue { background: #fee2e2; color: #991b1b; }
+button { padding: 12px; border-radius: 8px; border: none; font-size: 15px; cursor: pointer; width: 100%; margin-top: 8px; }
+.btn-primary { background: #2563eb; color: #fff; }
+</style>
+</head>
+<body>
+<h1 id="title">总览</h1>
+<a href="/">← 返回</a>
+
+<div class="nav">
+  <a href="/overview?name=" id="navOverview">总览</a>
+  <a href="/characters?name=" id="navChars">人物</a>
+  <a href="/foreshadows?name=" id="navFs">伏笔</a>
+  <a href="/read?name=" id="navRead">阅读</a>
+  <a href="/console?name=" id="navConsole">控制台</a>
+  <a href="/settings?name=" id="navSettings">设定</a>
+</div>
+
+<div class="card">
+  <div class="stats">
+    <div class="stat"><div class="label">已写</div><div class="value" id="cur">0</div></div>
+    <div class="stat"><div class="label">总章</div><div class="value" id="total">0</div></div>
+    <div class="stat"><div class="label">状态</div><div class="value" id="status">-</div></div>
+  </div>
+  <div class="progress"><div class="progress-bar" id="bar" style="width:0%"></div></div>
+  <div style="text-align:center;font-size:12px;color:#999" id="pct">0%</div>
+  <button class="btn-primary" onclick="startGen()">开始/继续生成</button>
+</div>
+
+<div class="card">
+  <h3 style="margin-bottom:8px">伏笔状态</h3>
+  <div id="fsList">加载中...</div>
+</div>
+
+<div class="card">
+  <h3 style="margin-bottom:8px">最近日志</h3>
+  <div id="logList" style="font-size:12px;color:#666;max-height:150px;overflow-y:auto">加载中...</div>
+</div>
+
+<script>
+const params = new URLSearchParams(location.search);
+const name = params.get('name');
+document.getElementById('title').textContent = name;
+['navOverview','navChars','navFs','navRead','navConsole','navSettings'].forEach(id => {
+  document.getElementById(id).href += encodeURIComponent(name);
+});
+
+async function loadAll() {
+  // 进度
+  const p = await (await fetch('/api/projects/' + encodeURIComponent(name) + '/progress')).json();
+  document.getElementById('cur').textContent = p.current_chapter || 0;
+  document.getElementById('total').textContent = p.total_chapters || 0;
+  document.getElementById('status').textContent = p.status || 'idle';
+  const pct = p.total_chapters ? Math.round(p.current_chapter / p.total_chapters * 100) : 0;
+  document.getElementById('bar').style.width = pct + '%';
+  document.getElementById('pct').textContent = pct + '%';
+
+  // 伏笔
+  const fs = await (await fetch('/api/projects/' + encodeURIComponent(name) + '/foreshadows')).json();
+  const active = fs.filter(f => f.status === 'active');
+  const resolved = fs.filter(f => f.status === 'resolved');
+  document.getElementById('fsList').innerHTML = `
+    <div style="font-size:13px;margin-bottom:8px">
+      <span class="tag active">未回收 ${active.length}</span>
+      <span class="tag resolved">已回收 ${resolved.length}</span>
+    </div>
+    ${active.slice(0, 5).map(f => `
+      <div class="foreshadow">
+        <span class="tag active">第${f.plant_chapter}章</span>
+        ${f.plant_summary}
+      </div>
+    `).join('') || '<p style="color:#999;font-size:13px">暂无伏笔</p>'}
+  `;
+
+  // 日志
+  const logs = await (await fetch('/api/projects/' + encodeURIComponent(name) + '/logs')).json();
+  document.getElementById('logList').innerHTML = logs.slice(0, 10).map(l => `
+    <div style="padding:3px 0">${l.created_at || ''} [${l.stage}] ${l.error || l.status}</div>
+  `).join('');
+}
+
+async function startGen() {
+  const total = parseInt(document.getElementById('total').textContent) || 100;
+  await fetch('/api/generate/start', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({project_name: name, total_chapters: total})
+  });
+  location.href = '/console?name=' + encodeURIComponent(name);
+}
+
+loadAll();
+setInterval(loadAll, 5000);
+</script>
+</body>
+</html>
